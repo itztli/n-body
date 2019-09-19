@@ -71,15 +71,15 @@ class Particle:
         k= (1/2)*self.m*(math.sqrt( self.v[0]^2 +self.v[1]^2+self.v[2]^2))
         return k    
     
-p0=[1.0, 0.0, 0.0]  #km
+p0=[5e-2, 1e-3, 0.0]  #km
 v0=[0.0, 0.0, 0.0]  #km/s
-m=1.0               #kg
+m=1e7               #kg
 
 p1=[0.0, 0.0, 0.0]  #km
 v1=[1.0, 0.0, 0.0]  #km/s
 m1=1.0               #kg
 
-dt=0.01              #sec
+dt=0.001              #sec
 
 A = Particle(p0,v0,m)
 B = Particle(p1,v1,m1)
@@ -124,9 +124,12 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 for point in y:
-    ax.scatter(point[0], point[1], point[2], marker=m)
+    ax.scatter(point[0], point[1], point[2], marker='o')
 
+pointA=A.getPosition()
+ax.scatter(pointA[0], pointA[1], pointA[2], marker='o')
 
+    
 #fig, ax = plt.subplots(3)    
 #ax[0].plot(x,y)
 #ax[0].set(xlabel='time [sec]', ylabel='distance [km]',
