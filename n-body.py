@@ -22,10 +22,14 @@ G=6.674e-11         #m^3kg^-1s^-2
 
 class Particle:
     
-    def __init__(self, p, v, m):
-        self.p = p
-        self.v = v
-        self.m = m
+    def __init__(self, p, v, m, dt=1):
+        self.p = p #position
+        self.v = v #velocity
+        self.m = m #mass
+        self.dt = dt
+
+    def setdt(self,dt):
+        self.dt = dt
 
     def computeR(self,p1):
         r = math.sqrt( (p1[0]-self.p[0])**2 + (p1[1]-self.p[1])**2 + (p1[2]-self.p[2])**2)
@@ -39,43 +43,46 @@ class Particle:
             i+=1
         return u
     
-    def integrate(self,dt,p1,m1):
-        r = self.computeR(p1)
-        u = self.computeU(p1)
+    #def integrate(self,dt,p1,m1):
+    def integrate(self,B):
+        r = self.computeR(B.p)
+        u = self.computeU(B.p)
 
-        Vx=(G*m1*dt/(r**3))*u[0]
-        Vy=(G*m1*dt/(r**3))*u[1]
-        Vz=(G*m1*dt/(r**3))*u[2]
+        Vx=(G*B.m*self.dt/(r**3))*u[0]
+        Vy=(G*B.m*self.dt/(r**3))*u[1]
+        Vz=(G*B.m*self.dt/(r**3))*u[2]
+
+        self.v[0] += Vx
+        self.v[1] += Vy
+        self.v[2] += Vz
         
-        self.p = [self.p[0]+ (self.v[0]+Vx) *dt,self.p[1]+ (self.v[1]+Vy)*dt,self.p[2]+ (self.v[2]+Vz)*dt]
+        self.p = [self.p[0]+ (self.v[0]) *dt,self.p[1]+ (self.v[1])*dt,self.p[2]+ (self.v[2])*dt]
 
     def getPosition(self):
         return self.p
 
     def getKineticEnergy(self):
         k= (1/2)*self.m*(math.sqrt( self.v[0]^2 +self.v[1]^2+self.v[2]^2))
-        return k
-
-
+        return k    
     
-    
-p0=[0.0, 0.0, 0.0]  #m
-v0=[1.0, 1.0, 1.0]  #m/s
+p0=[1.0, 0.0, 0.0]  #km
+v0=[0.0, 0.0, 0.0]  #km/s
 m=1.0               #kg
 
-p1=[10.0, 0.0, 0.0]  #m
-v1=[0.0, 0.0, 0.0]  #m/s
-m1=1e24               #kg
+p1=[0.0, 0.0, 0.0]  #km
+v1=[1.0, 0.0, 0.0]  #km/s
+m1=1.0               #kg
 
-
-dt=1.0              #sec
+dt=0.01              #sec
 
 A = Particle(p0,v0,m)
+B = Particle(p1,v1,m1)
 
-for t in range(60):
-    #print(A.getPosition())
-    A.integrate(dt,p1,m1)
-    print(A.getPosition())
+B.setdt(dt)
+
+for t in range(100):
+    B.integrate(A)
+    print(B.getPosition())
 
 
 
