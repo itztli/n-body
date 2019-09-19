@@ -17,6 +17,9 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 import math
+import matplotlib
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D  # noqa: F401 unused import
 
 G=6.674e-11         #m^3kg^-1s^-2
 
@@ -61,6 +64,9 @@ class Particle:
     def getPosition(self):
         return self.p
 
+    def getVelocity(self):
+        return self.v
+
     def getKineticEnergy(self):
         k= (1/2)*self.m*(math.sqrt( self.v[0]^2 +self.v[1]^2+self.v[2]^2))
         return k    
@@ -80,11 +86,64 @@ B = Particle(p1,v1,m1)
 
 B.setdt(dt)
 
-for t in range(100):
+x=[]
+y=[]
+v=[]
+a=[]
+
+x.append(0.0)
+#y.append(B.getPosition()[0])
+y.append(B.getPosition())
+v.append(B.getVelocity()[0])
+
+print(B.getVelocity()[0])
+
+a.append(0.0)
+v1=B.getVelocity()[0]
+#lastX = B.getPosition()[0]
+
+#for t in range(1,100):
+#    lastX = B.getPosition()[0]
+#    lastV = v1
+#    B.integrate(A)
+#    print(B.getPosition())
+#    x.append(float(t)*dt)
+#    y.append(B.getPosition()[0])
+#    v1=(B.getPosition()[0]-lastX)/B.dt
+#    print(v1)
+#    v.append(v1)
+#    a.append((v1-lastV)/B.dt)
+
+for t in range(1,100):
     B.integrate(A)
-    print(B.getPosition())
+    x.append(float(t)*dt)
+    y.append(B.getPosition())
+
+fig = plt.figure()
+
+ax = fig.add_subplot(111, projection='3d')
+
+for point in y:
+    ax.scatter(point[0], point[1], point[2], marker=m)
 
 
+#fig, ax = plt.subplots(3)    
+#ax[0].plot(x,y)
+#ax[0].set(xlabel='time [sec]', ylabel='distance [km]',
+#           title="n-body")
+#ax[0].grid()
+#
+#ax[1].plot(x,v)
+#ax[1].set(xlabel='time [sec]', ylabel='velocity [km/s]')
+#ax[1].grid()
+#
+#ax[2].plot(x,a)
+#ax[2].set(xlabel='time [sec]', ylabel='acceleration [km/s^2]')
+#ax[2].grid()
+
+
+
+plt.show()
 
 
 
