@@ -30,6 +30,8 @@ class Particle:
         self.v = v #velocity
         self.m = m #mass
         self.dt = dt
+        self.trajectory = [p]
+        self.time = [0.0]
 
     def setdt(self,dt):
         self.dt = dt
@@ -70,6 +72,52 @@ class Particle:
     def getKineticEnergy(self):
         k= (1/2)*self.m*(math.sqrt( self.v[0]^2 +self.v[1]^2+self.v[2]^2))
         return k    
+
+    #def integrate(self,dt,p1,m1):
+    def computeV(self,B):
+        r = self.computeR(B.p)
+        u = self.computeU(B.p)
+
+        Vx=(G*B.m*self.dt/(r**3))*u[0]
+        Vy=(G*B.m*self.dt/(r**3))*u[1]
+        Vz=(G*B.m*self.dt/(r**3))*u[2]
+
+        return [Vx,Vy,Vz]
+
+
+    #def integrate(self,dt,p1,m1):
+    def updateV(self,v):
+        self.v[0] += v[0]
+        self.v[1] += v[1]
+        self.v[2] += v[2]
+        
+    #def integrate(self,dt,p1,m1):
+    def updatePosition(self,time):        
+        self.p = [self.p[0]+ (self.v[0]) *dt,self.p[1]+ (self.v[1])*dt,self.p[2]+ (self.v[2])*dt]
+        self.time.append(time)
+        self.trajectory.append(self.p)
+
+
+    def getTrajectory(self):
+        return self.time, self.trajectory
+        
+class Potential:
+    
+    def __init__(self, system, dt):
+        self.system = system #set of Particles
+        self.dt = dt #set of Particles
+
+    def integrate(self,time):
+        for particle in self.system:
+            for other in self.system:
+                if other != particle:
+                    velocity = particle.computeV(other)
+                    particle.updateV(velocity)
+        for particle in self.system:
+            particle.updatePosition(time)
+
+        return self.system
+
     
 p0=[5e-2, 1e-3, 0.0]  #km
 v0=[0.0, 0.0, 0.0]  #km/s
@@ -77,57 +125,74 @@ m=1e7               #kg
 
 p1=[0.0, 0.0, 0.0]  #km
 v1=[1.0, 0.0, 0.0]  #km/s
-m1=1.0               #kg
+m1=1e7               #kg
 
 dt=0.001              #sec
 
 A = Particle(p0,v0,m)
 B = Particle(p1,v1,m1)
 
-B.setdt(dt)
+particles = [A,B]
+twoBody = Potential(particles,dt)
 
 x=[]
 y=[]
-v=[]
-a=[]
-
-x.append(0.0)
-#y.append(B.getPosition()[0])
-y.append(B.getPosition())
-v.append(B.getVelocity()[0])
-
-print(B.getVelocity()[0])
-
-a.append(0.0)
-v1=B.getVelocity()[0]
-#lastX = B.getPosition()[0]
-
-#for t in range(1,100):
-#    lastX = B.getPosition()[0]
-#    lastV = v1
-#    B.integrate(A)
-#    print(B.getPosition())
-#    x.append(float(t)*dt)
-#    y.append(B.getPosition()[0])
-#    v1=(B.getPosition()[0]-lastX)/B.dt
-#    print(v1)
-#    v.append(v1)
-#    a.append((v1-lastV)/B.dt)
 
 for t in range(1,100):
-    B.integrate(A)
-    x.append(float(t)*dt)
-    y.append(B.getPosition())
+    system = twoBody.integrate(float(t)*dt)
+    
+
+
+#B.setdt(dt)
+#x=[]
+#y=[]
+#v=[]
+#a=[]
+#x.append(0.0)
+##y.append(B.getPosition()[0])
+#y.append(B.getPosition())
+#v.append(B.getVelocity()[0])
+#
+#print(B.getVelocity()[0])
+#
+#a.append(0.0)
+#v1=B.getVelocity()[0]
+##lastX = B.getPosition()[0]
+#
+##for t in range(1,100):
+##    lastX = B.getPosition()[0]
+##    lastV = v1
+##    B.integrate(A)
+##    print(B.getPosition())
+##    x.append(float(t)*dt)
+##    y.append(B.getPosition()[0])
+##    v1=(B.getPosition()[0]-lastX)/B.dt
+##    print(v1)
+##    v.append(v1)
+##    a.append((v1-lastV)/B.dt)
+#
+#for t in range(1,100):
+#    B.integrate(A)
+#    x.append(float(t)*dt)
+#    y.append(B.getPosition())
 
 fig = plt.figure()
 
 ax = fig.add_subplot(111, projection='3d')
 
-for point in y:
-    ax.scatter(point[0], point[1], point[2], marker='o')
+i=0
+c=['g','r']
+for particle in particles:
+    time, trajectory = particle.getTrajectory()
+    for x, y in zip(time,trajectory):
+        ax.scatter(y[0], y[1], y[2], marker='o',c=c[i])
+    i=i+1
+        
+#for point in y:
+#    ax.scatter(point[0], point[1], point[2], marker='o')
 
-pointA=A.getPosition()
-ax.scatter(pointA[0], pointA[1], pointA[2], marker='o')
+#pointA=A.getPosition()
+#ax.scatter(pointA[0], pointA[1], pointA[2], marker='o')
 
     
 #fig, ax = plt.subplots(3)    
