@@ -1,0 +1,12 @@
+#!/usr/bin/env python3
+
+import sys
+import numpy as np
+import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
+
+# u position vector
+# q charge
+# v position vector of q
+def ElectrostaticForce(u,q,v):
+    

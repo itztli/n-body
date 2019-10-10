@@ -57,6 +57,7 @@ class Particle:
         Vy=(G*B.m*self.dt/(r**3))*u[1]
         Vz=(G*B.m*self.dt/(r**3))*u[2]
 
+        
         self.v[0] += Vx
         self.v[1] += Vy
         self.v[2] += Vz
@@ -81,7 +82,9 @@ class Particle:
         Vx=(G*B.m*self.dt/(r**3))*u[0]
         Vy=(G*B.m*self.dt/(r**3))*u[1]
         Vz=(G*B.m*self.dt/(r**3))*u[2]
-
+        #print(u)
+        #print(r)
+        #print((G*B.m/(r**3))*u[0],(G*B.m/(r**3))*u[1],(G*B.m/(r**3))*u[2])         
         return [Vx,Vy,Vz]
 
 
@@ -118,27 +121,35 @@ class Potential:
 
         return self.system
 
-    
-p0=[5e-2, 1e-3, 0.0]  #km
-v0=[0.0, 0.0, 0.0]  #km/s
-m=1e7               #kg
+lenTime=1.0  #sec
+dt=0.005      #sec    
 
-p1=[0.0, 0.0, 0.0]  #km
-v1=[1.0, 0.0, 0.0]  #km/s
-m1=1e7               #kg
+n_steps = int(lenTime/dt)
 
-dt=0.001              #sec
+p0=[0.001, 0.0, 0.0]  #m
+v0=[0.0, 0.0, 0.0]  #m/s
+m=1e1               #kg
+
+p1=[0.0, 0.0, 0.0]  #m
+v1=[0.0, 0.0, 1e-3]  #m/s
+m1=1e1               #kg
+
+
 
 A = Particle(p0,v0,m)
 B = Particle(p1,v1,m1)
 
-particles = [A,B]
+C = Particle( [0.0, 0.001, 0.0] , [0.0,0.0,0.0], 1e1)
+
+particles = [A,B,C]
 twoBody = Potential(particles,dt)
 
 x=[]
 y=[]
 
-for t in range(1,100):
+
+
+for t in range(1,n_steps):
     system = twoBody.integrate(float(t)*dt)
     
 
@@ -181,13 +192,25 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 i=0
-c=['g','r']
+c=['g','r','b']
 for particle in particles:
     time, trajectory = particle.getTrajectory()
     for x, y in zip(time,trajectory):
         ax.scatter(y[0], y[1], y[2], marker='o',c=c[i])
+        #ax.scatter(y[0], y[1], y[2], c=c[i])
     i=i+1
-        
+
+
+# stack the plots
+#lns = []
+#for i in range(len(t)):
+#    ln1, = ax.plot(y0[:i], y1[:i], z1[:i], 'o-', color='steelblue')
+#    ln2, = ax.plot(x2[:i], y2[:i], z2[:i], 'o-', color='darkorange')
+#    lns.append([ln1, ln2])
+
+#line_ani = animation.ArtistAnimation(fig, lns, interval=100, blit=True)
+
+    
 #for point in y:
 #    ax.scatter(point[0], point[1], point[2], marker='o')
 
