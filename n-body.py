@@ -95,10 +95,11 @@ class Particle:
         self.v[2] += v[2]
         
     #def integrate(self,dt,p1,m1):
-    def updatePosition(self,time):        
+    def updatePosition(self,time,save):        
         self.p = [self.p[0]+ (self.v[0]) *dt,self.p[1]+ (self.v[1])*dt,self.p[2]+ (self.v[2])*dt]
-        self.time.append(time)
-        self.trajectory.append(self.p)
+        if save:
+            self.time.append(time)
+            self.trajectory.append(self.p)
 
 
     def getTrajectory(self):
@@ -110,49 +111,69 @@ class Potential:
         self.system = system #set of Particles
         self.dt = dt #set of Particles
 
-    def integrate(self,time):
+    def integrate(self,time,save):
+        print(time/3600.0/24.0)
         for particle in self.system:
             for other in self.system:
                 if other != particle:
                     velocity = particle.computeV(other)
                     particle.updateV(velocity)
         for particle in self.system:
-            particle.updatePosition(time)
+            particle.updatePosition(time,save)
 
         return self.system
 
-lenTime=1.0  #sec
-dt=0.005      #sec    
+lenTime=3600.0*24*30  #sec
+dt=1.0      #sec    
+
+
+sun = Particle([0,0,0],[0,0,0], 2e30)
+mercury = Particle([0,5.7e10,0],[47000,0,0], 3.285e23)
+venus = Particle([0, 1.1e11, 0], [35000,0,0], 4.8e24)
+earth = Particle([0, 1.5e11, 0], [30000, 0, 0], 6e24)
+mars = Particle([0.0, 2.2e11,0.0],[24000.0,0.0,0.0],2.4e24)
+jupiter=Particle([0.0, 7.7e11, 0.0] ,[13000, 0.0, 0.0],1e28) 
+saturn = Particle([0,1.4e12,0], [9000,0,0],5.7e26)
+uranus = Particle([0,2.8e12,0], [6835,0,0], 8.7e25)
+neptune = Particle([0,4.5e12,0], [5477,0,0],1e26)
+pluto = Particle ([0,3.7e12,0], [4748,0,0],1.3e22)
+
 
 n_steps = int(lenTime/dt)
 
-p0=[0.001, 0.0, 0.0]  #m
-v0=[0.0, 0.0, 0.0]  #m/s
-m=1e1               #kg
 
-p1=[0.0, 0.0, 0.0]  #m
-v1=[0.0, 0.0, 1e-3]  #m/s
-m1=1e1               #kg
+#p0=[0.001, 0.0, 0.0]  #m
+#v0=[0.0, 0.0, 0.0]  #m/s
+#m=1e1               #kg
+
+#p1=[0.0, 0.0, 0.0]  #m
+#v1=[0.0, 0.0, 1e-3]  #m/s
+#m1=1e1               #kg
 
 
 
-A = Particle(p0,v0,m)
-B = Particle(p1,v1,m1)
+#A = Particle(p0,v0,m)
+#B = Particle(p1,v1,m1)
+#C = Particle( [0.0, 0.001, 0.0] , [0.0,0.0,0.0], 1e1)
 
-C = Particle( [0.0, 0.001, 0.0] , [0.0,0.0,0.0], 1e1)
+#particles = [sun,mercury,venus,earth,mars,jupiter,saturn,uranus,neptune,pluto]
+particles = [sun,earth]
 
-particles = [A,B,C]
 twoBody = Potential(particles,dt)
 
 x=[]
 y=[]
 
 
-
+skip=0
+save=False
 for t in range(1,n_steps):
-    system = twoBody.integrate(float(t)*dt)
-    
-
+    if skip == 1000:
+        skip=0
+        save=True
+    system = twoBody.integrate(float(t)*dt,save)
+    save=False
+    skip += 1
 
 #B.setdt(dt)
 #x=[]
@@ -192,7 +213,7 @@ fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
 i=0
-c=['g','r','b']
+c=['g','r','b','g','r','b','g','r','b','g','r','b']
 for particle in particles:
     time, trajectory = particle.getTrajectory()
     for x, y in zip(time,trajectory):
